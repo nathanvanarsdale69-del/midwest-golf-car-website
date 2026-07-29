@@ -1,9 +1,19 @@
+import Image from "next/image";
+
 export default function Home() {
   return (
     <>
       <nav>
         <div className="wrap">
-          <div className="logo">MIDWEST <span>GOLF CAR</span></div>
+          <a href="/" className="logo">
+            <Image
+              src="/logo.png"
+              alt="Midwest Golf Car"
+              width={160}
+              height={120}
+              priority
+            />
+          </a>
           <ul className="nav-links">
             <li><a href="#services">Services</a></li>
             <li><a href="#fleet">Fleet</a></li>
@@ -112,6 +122,14 @@ export default function Home() {
 
       <footer>
         MIDWEST GOLF CAR · 904 THORNGATE RD, GRANITE CITY, IL · © 2026
+        <div style={{ marginTop: "8px" }}>
+          <a
+            href="https://admin.midwestgolfcar.com"
+            style={{ color: "inherit", opacity: 0.6, textDecoration: "underline", fontSize: "0.85em" }}
+          >
+            Employee Login
+          </a>
+        </div>
       </footer>
     </>
   );
