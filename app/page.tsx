@@ -10,7 +10,7 @@ export default function Home() {
             <li><a href="#hours">Hours</a></li>
             <li><a href="#contact">Contact</a></li>
           </ul>
-          <a href="tel:+16185550100" className="nav-phone">(618) 555-0100</a>
+          <a href="tel:+16187972278" className="nav-phone">618-797-CART</a>
         </div>
       </nav>
 
@@ -20,7 +20,7 @@ export default function Home() {
           <h1>Rent it. Buy it. <em>Keep it running.</em></h1>
           <p>Your neighborhood source for golf cart rental, sales, and service — gas, lead acid, or lithium ion, we've got a cart for the job.</p>
           <div className="hero-ctas">
-            <a href="tel:+16185550100" className="btn-primary">Call (618) 555-0100</a>
+            <a href="tel:+16187972278" className="btn-primary">Call 618-797-CART</a>
             <a href="#fleet" className="btn-secondary">View the Fleet</a>
           </div>
         </div>
@@ -104,7 +104,7 @@ export default function Home() {
           <h2>Ready to roll?</h2>
           <p>Give us a call or stop by — we'll get you set up with the right cart for the job.</p>
           <div className="contact-links">
-            <a href="tel:+16185550100" className="btn-primary">Call (618) 555-0100</a>
+            <a href="tel:+16187972278" className="btn-primary">Call 618-797-CART</a>
             <a href="mailto:info@midwestgolfcar.com" className="btn-secondary">Email Us</a>
           </div>
         </div>
