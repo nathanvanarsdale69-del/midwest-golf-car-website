@@ -100,7 +100,7 @@ export default function ViewClient({ token }: { token: string }) {
 
         {waiver?.pdfUrl && (
           <iframe
-            src={waiver.pdfUrl}
+            src={`${waiver.pdfUrl}#toolbar=0&navpanes=0&view=FitH`}
             title="Rental Waiver Document"
             style={pdfEmbedStyle}
           />
@@ -136,7 +136,7 @@ const pageStyle: React.CSSProperties = {
 };
 
 const pageInnerStyle: React.CSSProperties = {
-  maxWidth: "780px",
+  maxWidth: "900px",
   width: "100%",
 };
 
@@ -157,8 +157,8 @@ const detailsRowStyle: React.CSSProperties = {
 
 const pdfEmbedStyle: React.CSSProperties = {
   width: "100%",
-  height: "65vh",
-  minHeight: "400px",
+  height: "85vh",
+  minHeight: "700px",
   border: "1px solid #ddd",
   borderLeft: "none",
   borderRight: "none",
