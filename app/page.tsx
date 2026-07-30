@@ -5,15 +5,7 @@ export default function Home() {
     <>
       <nav>
         <div className="wrap">
-          <a href="/" className="logo">
-            <Image
-              src="/logo.png"
-              alt="Midwest Golf Car"
-              width={160}
-              height={120}
-              priority
-            />
-          </a>
+          <div className="logo">MIDWEST <span>GOLF CAR</span></div>
           <ul className="nav-links">
             <li><a href="#services">Services</a></li>
             <li><a href="#fleet">Fleet</a></li>
@@ -26,7 +18,15 @@ export default function Home() {
 
       <header className="hero">
         <div className="wrap">
-          <div className="hero-eyebrow">Granite City, IL · Est. Local</div>
+          <Image
+            src="/logo.png"
+            alt="Midwest Golf Car"
+            width={780}
+            height={536}
+            priority
+            className="hero-logo-mobile"
+          />
+          <div className="hero-eyebrow">Granite City, IL · Est. 2025</div>
           <h1>Rent it. Buy it. <em>Keep it running.</em></h1>
           <p>Your neighborhood source for golf cart rental, sales, and service — gas, lead acid, or lithium ion, we've got a cart for the job.</p>
           <div className="hero-ctas">
@@ -34,6 +34,14 @@ export default function Home() {
             <a href="#fleet" className="btn-secondary">View the Fleet</a>
           </div>
         </div>
+        <Image
+          src="/logo.png"
+          alt="Midwest Golf Car"
+          width={680}
+          height={468}
+          priority
+          className="hero-logo"
+        />
         <div className="plate-strip"></div>
       </header>
 
@@ -102,9 +110,13 @@ export default function Home() {
               <div className="hours-row"><span>Address</span><span>904 Thorngate Rd</span></div>
               <div className="hours-row"><span>City</span><span>Granite City, IL</span></div>
             </div>
-            <div className="map-placeholder">
-              Map embed goes here<br />904 Thorngate Rd, Granite City, IL
-            </div>
+            <iframe
+              className="map-embed"
+              src="https://maps.google.com/maps?q=904%20Thorngate%20Rd%2C%20Granite%20City%2C%20IL%2062040&output=embed"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="Midwest Golf Car location map"
+            ></iframe>
           </div>
         </div>
       </section>
