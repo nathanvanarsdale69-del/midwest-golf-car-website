@@ -1,4 +1,4 @@
-import SignClient from "./SignClient";
+import ViewClient from "./ViewClient";
 
 export default async function SignPage({
   params,
@@ -6,5 +6,5 @@ export default async function SignPage({
   params: Promise<{ token: string }>;
 }) {
   const { token } = await params;
-  return <SignClient token={token} />;
+  return <ViewClient token={token} />;
 }

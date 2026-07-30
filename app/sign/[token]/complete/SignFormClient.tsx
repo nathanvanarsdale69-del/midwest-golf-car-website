@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -8,13 +9,9 @@ const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 type WaiverInfo = {
   status: string;
   customerName: string;
-  startDate: string | null;
-  endDate: string | null;
-  total: number | null;
-  pdfUrl: string | null;
 };
 
-export default function SignClient({ token }: { token: string }) {
+export default function SignFormClient({ token }: { token: string }) {
   const [waiver, setWaiver] = useState<WaiverInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
@@ -27,6 +24,7 @@ export default function SignClient({ token }: { token: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isDrawing = useRef(false);
   const hasSignature = useRef(false);
+  const bounds = useRef({ minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity });
 
   useEffect(() => {
     async function loadWaiver() {
@@ -52,7 +50,6 @@ export default function SignClient({ token }: { token: string }) {
     loadWaiver();
   }, [token]);
 
-  // --- Signature pad drawing logic (works with mouse and touch) ---
   const getPos = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current!;
     const rect = canvas.getBoundingClientRect();
@@ -82,6 +79,12 @@ export default function SignClient({ token }: { token: string }) {
     ctx.lineTo(x, y);
     ctx.stroke();
     hasSignature.current = true;
+
+    const b = bounds.current;
+    if (x < b.minX) b.minX = x;
+    if (y < b.minY) b.minY = y;
+    if (x > b.maxX) b.maxX = x;
+    if (y > b.maxY) b.maxY = y;
   };
 
   const stopDrawing = () => {
@@ -93,6 +96,7 @@ export default function SignClient({ token }: { token: string }) {
     const ctx = canvas.getContext("2d")!;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     hasSignature.current = false;
+    bounds.current = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
   };
 
   const handleSubmit = async () => {
@@ -113,7 +117,32 @@ export default function SignClient({ token }: { token: string }) {
 
     setSubmitting(true);
     try {
-      const signatureDataUrl = canvasRef.current!.toDataURL("image/png");
+      const sourceCanvas = canvasRef.current!;
+      const b = bounds.current;
+
+      const padding = 8;
+      const cropX = Math.max(0, b.minX - padding);
+      const cropY = Math.max(0, b.minY - padding);
+      const cropWidth = Math.min(sourceCanvas.width, b.maxX + padding) - cropX;
+      const cropHeight = Math.min(sourceCanvas.height, b.maxY + padding) - cropY;
+
+      const croppedCanvas = document.createElement("canvas");
+      croppedCanvas.width = cropWidth;
+      croppedCanvas.height = cropHeight;
+      const croppedCtx = croppedCanvas.getContext("2d")!;
+      croppedCtx.drawImage(
+        sourceCanvas,
+        cropX,
+        cropY,
+        cropWidth,
+        cropHeight,
+        0,
+        0,
+        cropWidth,
+        cropHeight
+      );
+
+      const signatureDataUrl = croppedCanvas.toDataURL("image/png");
       const res = await fetch(`${SUPABASE_URL}/functions/v1/complete-waiver`, {
         method: "POST",
         headers: {
@@ -136,7 +165,7 @@ export default function SignClient({ token }: { token: string }) {
   if (loading) {
     return (
       <Centered>
-        <p>Loading your waiver…</p>
+        <p>Loading…</p>
       </Centered>
     );
   }
@@ -168,39 +197,17 @@ export default function SignClient({ token }: { token: string }) {
   return (
     <div style={pageStyle}>
       <div style={cardStyle}>
-        <h1 style={{ fontSize: "1.4rem", marginBottom: "0.25rem" }}>
-          Midwest Golf Car — Rental Waiver
+        <Link href={`/sign/${token}`} style={backLinkStyle}>
+          ← Back to document
+        </Link>
+
+        <h1 style={{ fontSize: "1.3rem", margin: "0.75rem 0 0.25rem" }}>
+          Sign Your Waiver
         </h1>
-        <p style={{ color: "#555", marginBottom: "1.5rem" }}>
-          Dear {waiver?.customerName}, please review your rental waiver below
-          and sign to confirm your reservation.
+        <p style={{ color: "#555", marginBottom: "1.5rem", fontSize: "0.95rem" }}>
+          {waiver?.customerName}, complete the fields below to finalize your
+          signature.
         </p>
-
-        {waiver?.startDate && waiver?.endDate && (
-          <div style={detailsBoxStyle}>
-            <div>
-              <strong>Rental period:</strong>{" "}
-              {new Date(waiver.startDate).toLocaleDateString()} –{" "}
-              {new Date(waiver.endDate).toLocaleDateString()}
-            </div>
-            {waiver.total != null && (
-              <div>
-                <strong>Total:</strong> ${waiver.total}
-              </div>
-            )}
-          </div>
-        )}
-
-        {waiver?.pdfUrl && (
-          <a
-            href={waiver.pdfUrl}
-            target="_blank"
-            rel="noreferrer"
-            style={linkStyle}
-          >
-            View full waiver document (PDF) →
-          </a>
-        )}
 
         <label style={labelStyle}>Type your full legal name</label>
         <input
@@ -233,8 +240,9 @@ export default function SignClient({ token }: { token: string }) {
             onChange={(e) => setAgreed(e.target.checked)}
           />
           <span>
-            I have reviewed the waiver above and agree that my typed name and
-            drawn signature constitute my legal signature on this document.
+            I have reviewed the full waiver document and agree that my typed
+            name and drawn signature constitute my legal signature on this
+            document.
           </span>
         </label>
 
@@ -278,21 +286,10 @@ const cardStyle: React.CSSProperties = {
   boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
 };
 
-const detailsBoxStyle: React.CSSProperties = {
-  background: "#f5f3ea",
-  borderRadius: "6px",
-  padding: "1rem",
-  marginBottom: "1.25rem",
-  fontSize: "0.95rem",
-  lineHeight: 1.6,
-};
-
-const linkStyle: React.CSSProperties = {
-  display: "inline-block",
-  marginBottom: "1.5rem",
+const backLinkStyle: React.CSSProperties = {
+  fontSize: "0.85rem",
   color: "#1F3D2B",
-  fontWeight: 600,
-  textDecoration: "underline",
+  textDecoration: "none",
 };
 
 const labelStyle: React.CSSProperties = {
